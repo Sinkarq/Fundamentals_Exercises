@@ -1,77 +1,69 @@
-const phonebook = document.getElementById('phonebook');
-const personInput = document.getElementById('person');
-const phoneInput = document.getElementById('phone');
+const listOfPhones = document.querySelector('#phonebook');
+const loadButton = document.querySelector('#btnLoad');
+const createButton = document.querySelector('#btnCreate');
 
-async function onCreate() {
-    const person = personInput.value;
-    const phone = phoneInput.value;
+getPhones();
 
-    const contact = await createContacts({ person, phone });
+createButton.addEventListener('click', () => {
+    const personEl = document.querySelector('#person');
+    const phoneEl = document.querySelector('#phone');
 
-    phonebook.appendChild(template(contact));
-}
+    let person = personEl.value;
+    let phone = phoneEl.value;
 
-async function createContacts(contact) {
-    return await request('http://localhost:3030/jsonstore/phonebook', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contact)
-    });
-}
-
-async function readContacts() {
-    const data = await request('http://localhost:3030/jsonstore/phonebook', {
-        method: 'get'
+    request('http://localhost:3030/jsonstore/phonebook/', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({person, phone})
     });
 
-    phonebook.replaceChildren(...Object.values(data).map(c => template(c)));
+    personEl.value = '';
+    phoneEl.value = '';
+})
+
+loadButton.addEventListener('click', (e) => {
+    listOfPhones.innerHTML = '';
+    getPhones();
+})
+
+function getPhones() {
+
+    request('http://localhost:3030/jsonstore/phonebook/')
+        .then(x => Object.values(x).forEach(entity => {
+            createPhoneEl(entity._id, entity.person, entity.phone)
+        }))
+
+    function createPhoneEl(id, name, number) {
+        const liEl = document.createElement('li');
+
+        liEl.id = id;
+        liEl.textContent = `${name}: ${number}`;
+
+        const buttonEl = document.createElement('button');
+        buttonEl.textContent = 'Delete';
+        liEl.appendChild(buttonEl);
+
+        buttonEl.addEventListener('click', (e) => {
+            request(`http://localhost:3030/jsonstore/phonebook/${liEl.id}`, {
+                method: "DELETE"
+            });
+
+            listOfPhones.removeChild(liEl);
+        })
+
+        listOfPhones.appendChild(liEl);
+    }
 }
 
-async function deleteContact(e, id) {
-    return await request('http://localhost:3030/jsonstore/phonebook/' + id, {
-        method: 'delete'
-    });
-}
-
-
-function template(contact) {
-    return elem('li', {}, `${contact.person}: ${contact.phone}`,
-        elem('button', {
-            onclick: (e) => {
-                deleteContact(e, contact._id);
-                e.target.parentElement.remove();
+function request(url, options) {
+    return fetch(url, options)
+        .then(response => {
+            if (response.status != 200) {
+                throw new Error(`${response.status} ${response.statusText}`);
             }
-        }, 'Delete'),
-    );
+            return response.json();
+        })
+        .catch(x => console.error(x.message));
 }
-
-async function request(url, options) {
-    try {
-        const response = await fetch(url, options);
-        if (response.status != 200) { throw new Error(`${response.status} ${response.statusText}`); }
-
-        const data = await response.json();
-
-        return data;
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
-function elem(type, props, ...content) {
-    const element = document.createElement(type);
-    for (const prop in props) {
-        element[prop] = props[prop];
-    }
-    for (let entry of content) {
-        if (typeof entry == 'string' || typeof entry == 'number') {
-            entry = document.createTextNode(entry);
-        }
-        element.appendChild(entry);
-    }
-    return element;
-}
-
-document.getElementById('btnLoad').addEventListener('click', readContacts);
-document.getElementById('btnCreate').addEventListener('click', onCreate);
-window.addEventListener('DOMContentLoaded', readContacts);

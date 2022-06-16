@@ -54,3 +54,4 @@ export function element(type, props, ...content) {
 
     return element;
 }
+
