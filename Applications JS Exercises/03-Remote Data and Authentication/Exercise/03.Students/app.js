@@ -1,82 +1,64 @@
-const tbody = document.querySelector('#results>tbody');
+const tBody = document.querySelector('tbody');
+const submitButtonEl = document.querySelector('#submit');
+const formEl = document.querySelector('form');
 
-function onSubmit(e) {
+getData();
+
+submitButtonEl.addEventListener('click', (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const formData = new FormData(formEl);
+    const {firstName, lastName, facultyNumber, grade} = Object.fromEntries(formData);
 
-    const firstName = formData.get('firstName');
-    const lastName = formData.get('lastName');
-    const facultyNumber = formData.get('facultyNumber');
-    const grade = formData.get('grade');
+    request('http://localhost:3030/jsonstore/collections/students', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({firstName, lastName, facultyNumber, grade})
+    })
+        .then(_ => getData())
+        .catch(error => console.error(error.message));
+});
 
-    // const data = [...formData.entries()].reduce((a, [k, v]) => Object.assign(a, { [k]: v }), {});
-    // if (Object.values(data).every(x => x != '')) { }
-
-    if ((firstName && isNaN(Number(firstName))) &&
-        (lastName && isNaN(Number(lastName))) &&
-        (facultyNumber && !isNaN(Number(facultyNumber))) &&
-        (grade && !isNaN(Number(grade)))
-    ) {
-        const student = { firstName, lastName, facultyNumber, grade: Number(grade) };
-        createStudents(student);
-        tbody.appendChild(template(student));
-    }
-
-    e.target.reset();
+function getData() {
+    request('http://localhost:3030/jsonstore/collections/students')
+        .then(data => {
+            tBody.innerHTML = '';
+            const students = Object.values(data);
+            students.forEach(student => createTr(tBody, student.firstName, student.lastName, student.facultyNumber, student.grade));
+        })
+        .catch(error => console.error(error.message));
 }
 
-async function createStudents(student) {
-    return await request('http://localhost:3030/jsonstore/collections/students', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(student)
-    });
+function createTr(tBodyEl, firstName, lastName, facultyNumber, grade) {
+    const tr = document.createElement('tr');
+
+    const firstNameTd = document.createElement('td');
+    const lastNameTd = document.createElement('td');
+    const facultyNumberTd = document.createElement('td');
+    const gradeTd = document.createElement('td');
+
+    firstNameTd.textContent = firstName;
+    lastNameTd.textContent = lastName;
+    facultyNumberTd.textContent = facultyNumber;
+    gradeTd.textContent = grade;
+
+    tr.appendChild(firstNameTd);
+    tr.appendChild(lastNameTd);
+    tr.appendChild(facultyNumberTd);
+    tr.appendChild(gradeTd);
+
+    tBodyEl.appendChild(tr);
 }
 
-async function readStudents() {
-    const student = await request('http://localhost:3030/jsonstore/collections/students', {
-        method: 'get'
-    });
-
-    tbody.replaceChildren(...Object.values(student).map(s => template(s)));
+function request(url, options) {
+    return fetch(url, options)
+        .then(response => {
+            if (response.status != 200) {
+                throw new Error(`${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .catch(x => console.error(x.message));
 }
-
-function template(student) {
-    return elem('tr', {},
-        elem('th', {}, student.firstName),
-        elem('th', {}, student.lastName),
-        elem('th', {}, student.facultyNumber),
-        elem('th', {}, student.grade),
-    );
-}
-
-async function request(url, options) {
-    try {
-        const response = await fetch(url, options);
-        if (response.status != 200) { throw new Error(`${response.status} ${response.statusText}`); }
-
-        const data = await response.json();
-
-        return data;
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
-function elem(type, props, ...content) {
-    const element = document.createElement(type);
-    for (const prop in props) {
-        element[prop] = props[prop];
-    }
-    for (let entry of content) {
-        if (typeof entry == 'string' || typeof entry == 'number') {
-            entry = document.createTextNode(entry);
-        }
-        element.appendChild(entry);
-    }
-    return element;
-}
-
-document.getElementById('form').addEventListener('submit', onSubmit);
-window.addEventListener('DOMContentLoaded', readStudents);
