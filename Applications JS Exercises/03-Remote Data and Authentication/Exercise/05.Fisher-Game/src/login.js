@@ -1,39 +1,40 @@
-import { request } from './request.js';
+import {request} from "./request.js";
+import {refreshButtonsState} from "./DOM.js";
 
-window.addEventListener('DOMContentLoaded', () => {
-    const loggedUser = JSON.parse(sessionStorage.getItem('user'));
-    if (loggedUser == null) {
-        document.getElementById('user').style.display = 'none';
-    } else {
-        document.getElementById('guest').style.display = 'none';
-    }
+refreshButtonsState();
 
-    document.querySelector('form').addEventListener('submit', onSubmit);
-});
+const button = document.querySelector('button');
+const form = document.querySelector('form');
 
-async function onSubmit(e) {
+button.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const email = formData.get('email').trim();
-    const password = formData.get('password').trim();
+    const formData = new FormData(form);
+    const {email, password} = Object.fromEntries(formData);
 
-    if (!email || !password) { throw new Error('Invalid username or password!'); }
 
-    e.target.reset();
+    if (email == '' || password == '') {
+        alert("Something's missing");
+        return;
+    }
 
-    const data = await request('/users/login', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+    let data;
+
+    data = await request('http://localhost:3030/users/login', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({email, password})
     });
 
-    const user = {
-        email: data.email,
-        id: data._id,
-        token: data.accessToken
-    };
-    sessionStorage.setItem('user', JSON.stringify(user));
+    if (data.status == 403) {
+        alert('Wrong login credentials.');
+        return;
+    }
 
-    return window.location = './index.html';
-}
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('userId', data._id);
+    localStorage.setItem('email', data.email);
+    window.location.assign('index.html');
+});

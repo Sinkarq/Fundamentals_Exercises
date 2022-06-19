@@ -1,123 +1,105 @@
-import { request } from './request.js';
-import { element as e } from './element.js';
+import {addLogoutFunctionality, refreshButtonsState, createInput} from "./DOM.js";
+import {request} from "./request.js";
 
-let loggedUser = null;
+addLogoutFunctionality();
+refreshButtonsState();
+await loadCatches();
 
-function loadContent() {
-    loggedUser = JSON.parse(sessionStorage.getItem('user'));
-    if (loggedUser == null) {
-        document.getElementById('user').style.display = 'none';
-    } else {
-        document.getElementById('guest').style.display = 'none';
-        document.querySelector('#addForm .add').disabled = false;
-        document.querySelector('.email>span').textContent = loggedUser.email;
-    }
-
-    document.querySelector('.load').addEventListener('click', readCatches);
-    document.getElementById('addForm').addEventListener('submit', onSubmit);
-    document.getElementById('logout').addEventListener('click', onLogout);
-
-    readCatches();
-}
-
-async function onSubmit(e) {
+document.querySelector('button.load').addEventListener('click', async () => {
+    await loadCatches();
+});
+document.querySelector('button.add').addEventListener('click', async (e) => {
     e.preventDefault();
 
-    if (!loggedUser) { return window.location = './login.html'; }
+    const accessToken = localStorage.getItem('accessToken');
+    const formEl = document.querySelector('#addForm');
+    const formData = new FormData(formEl);
+    const {angler, weight, species, location, bait, captureTime} = Object.fromEntries(formData);
 
-    const formData = new FormData(e.target);
-    const inputFields = Array
-        .from(formData.entries())
-        .map(([k, v]) => [k, v.trim()])
-        .reduce((a, [k, v]) => Object.assign(a, { [k]: v }), {});
-
-    if (Object.values(inputFields).some(x => x == '')) { throw new Error('All fields must be filled'); }
-
-    await createCatches(inputFields);
-    readCatches();
-
-    e.target.reset();
-}
-
-async function onLogout(e) {
-    e.preventDefault();
-    await request('/users/logout', {
-        method: 'get',
-        headers: { 'X-Authorization': loggedUser.token }
-    });
-
-    sessionStorage.clear();
-    return window.location = './index.html';
-}
-
-async function createCatches(theCatch) {
-    return await request('/data/catches', {
-        method: 'post',
+    await request('http://localhost:3030/data/catches', {
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-Authorization': loggedUser.token
+            'content-type': 'application/json',
+            'X-Authorization': accessToken
         },
-        body: JSON.stringify(theCatch)
-    });
-}
-
-async function readCatches() {
-    const catches = await request('/data/catches', {
-        method: 'get'
+        body: JSON.stringify({angler, weight, species, location, bait, captureTime})
     });
 
-    return document.getElementById('catches').replaceChildren(...catches.map(i => template(i)));
-}
+    document.location.reload();
+});
 
-async function updateCatch(id, theCatch) {
-    return await request('/data/catches/' + id, {
-        method: 'put',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Authorization': loggedUser.token
-        },
-        body: JSON.stringify(theCatch)
-    });
-}
 
-async function deleteCatch(id) {
-    return await request('/data/catches/' + id, {
-        method: 'delete',
-        headers: { 'X-Authorization': loggedUser.token }
-    });
-}
+async function loadCatches() {
+    const userId = localStorage.getItem('userId');
+    const catchesEl = document.querySelector('#catches');
+    const accessToken = localStorage.getItem('accessToken');
 
-function template(theCatch) {
-    const isOwner = !(loggedUser && loggedUser.id == theCatch._ownerId);
-    return e('div', { className: 'catch' },
-        e('label', {}, 'Angler'),
-        e('input', { type: 'text', className: 'angler', value: theCatch.angler, disabled: isOwner },),
-        e('label', {}, 'Weight'),
-        e('input', { type: 'text', className: 'weight', value: theCatch.weight, disabled: isOwner },),
-        e('label', {}, 'Species'),
-        e('input', { type: 'text', className: 'species', value: theCatch.species, disabled: isOwner },),
-        e('label', {}, 'Location'),
-        e('input', { type: 'text', className: 'location', value: theCatch.location, disabled: isOwner },),
-        e('label', {}, 'Bait'),
-        e('input', { type: 'text', className: 'bait', value: theCatch.bait, disabled: isOwner },),
-        e('label', {}, 'Capture Time'),
-        e('input', { type: 'number', className: 'captureTime', value: theCatch.captureTime, disabled: isOwner },),
-        e('button', {
-            className: 'update', id: theCatch._id, disabled: isOwner, onclick: (e) => {
+    catchesEl.innerHTML = '';
+
+    Object.values(await request('http://localhost:3030/data/catches'))
+        .forEach(_catch => {
+            const catchDiv = document.createElement('div');
+            catchDiv.classList.add('catch');
+
+            createInput(catchDiv, 'Angler', 'angler', _catch.angler);
+            createInput(catchDiv, 'Weight', 'weight', _catch.weight);
+            createInput(catchDiv, 'Species', 'species', _catch.species);
+            createInput(catchDiv, 'Location', 'location', _catch.location);
+            createInput(catchDiv, 'Bait', 'bait', _catch.bait);
+            createInput(catchDiv, 'Capture Time', 'captureTime', _catch.captureTime);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete');
+            deleteButton.setAttribute('data-id', _catch._id);
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const inputs = e.target.parentElement.getElementsByTagName('input');
-                const data = Array.from(inputs).reduce((a, { className, value }) => Object.assign(a, { [className]: value }), {});
-                updateCatch(theCatch._id, data);
-            }
-        }, 'Update'),
-        e('button', {
-            className: 'delete', id: theCatch._id, disabled: isOwner, onclick: (e) => {
-                e.preventDefault();
-                deleteCatch(theCatch._id);
-                e.target.parentElement.remove();
-            }
-        }, 'Delete')
-    );
-}
+                await request(`http://localhost:3030/data/catches/${_catch._id}`, {
+                    method: "DELETE",
+                    headers: {
+                        'X-Authorization': accessToken
+                    }
+                });
 
-window.addEventListener('DOMContentLoaded', loadContent);
+                document.location.reload();
+            });
+
+            const updateButton = document.createElement('button');
+            updateButton.classList.add('update');
+            updateButton.setAttribute('data-id', _catch._id);
+            updateButton.textContent = 'Update';
+            updateButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                const accessToken = localStorage.getItem('accessToken');
+
+                const angler = catchDiv.querySelector('input.angler').value;
+                const weight = catchDiv.querySelector('input.weight').value;
+                const species = catchDiv.querySelector('input.species').value;
+                const location = catchDiv.querySelector('input.location').value;
+                const bait = catchDiv.querySelector('input.bait').value;
+                const captureTime = catchDiv.querySelector('input.captureTime').value;
+
+
+                await request(`http://localhost:3030/data/catches/${_catch._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json',
+                        'X-Authorization': accessToken
+                    },
+                    body: JSON.stringify({angler, weight, species, location, bait, captureTime})
+                });
+
+                document.location.reload();
+            });
+
+            if (userId != _catch._ownerId) {
+                updateButton.disabled = true;
+                deleteButton.disabled = true;
+            }
+
+            catchDiv.append(updateButton, deleteButton);
+
+            catchesEl.append(catchDiv);
+        });
+}

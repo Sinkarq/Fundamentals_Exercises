@@ -1,40 +1,39 @@
-import { request } from './request.js';
+import {request} from "./request.js";
+import {refreshButtonsState} from "./DOM.js";
 
-window.addEventListener('DOMContentLoaded', () => {
-    const loggedUser = JSON.parse(sessionStorage.getItem('user'));
-    if (loggedUser == null) {
-        document.getElementById('user').style.display = 'none';
-    } else {
-        document.getElementById('guest').style.display = 'none';
-    }
+refreshButtonsState();
 
-    document.querySelector('form').addEventListener('submit', onSubmit);
-});
 
-async function onSubmit(e) {
+const registerButton = document.querySelector('button');
+const formEl = document.querySelector('form');
+
+registerButton.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const email = formData.get('email').trim();
-    const password = formData.get('password').trim();
-    const rePass = formData.get('rePass').trim();
+    const formData = new FormData(formEl);
 
-    if (!email || !password || !rePass || password != rePass) { throw new Error('Invalid username or password!'); }
+    const {email, password, rePass} = Object.fromEntries(formData);
 
-    e.target.reset();
+    if (rePass != password) {
+        alert("The password doesn't match.");
+        return;
+    }
 
-    const data = await request('/users/register', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-    });
+    try {
+        const data = await request('http://localhost:3030/users/register', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({email, password})
+        });
 
-    const user = {
-        email: data.email,
-        id: data._id,
-        token: data.accessToken
-    };
-    sessionStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userId', data._id);
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('email', data.email);
 
-    return window.location = './index.html';
-}
+        window.location.assign('index.html');
+    } catch (exception) {
+        alert(exception.message);
+    }
+});

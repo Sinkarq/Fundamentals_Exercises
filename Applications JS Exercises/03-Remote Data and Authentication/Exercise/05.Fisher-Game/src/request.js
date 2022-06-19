@@ -1,15 +1,15 @@
-const host = 'http://localhost';
-const port = 3030;
-
 export async function request(url, options) {
     try {
-        const response = await fetch(`${host}:${port}${url}`, options);
-        if (response.ok != true) { throw new Error(`${response.status} ${response.statusText}`); }
+        const response = await fetch(`${url}`, options);
 
-        const data = await response.json();
+        if (response.ok != true && response.status != 403 && response.status == 409) {
+            const error = await response.json();
+            throw new Error(error.message);
+        }
 
-        return data;
+        return response.status == 204 || response.status == 403 || response.status == 409 ? response : await response.json();
+
     } catch (error) {
-        console.error(error.message);
+        throw error;
     }
 }
