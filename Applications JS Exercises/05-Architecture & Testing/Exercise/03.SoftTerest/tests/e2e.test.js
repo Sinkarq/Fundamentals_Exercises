@@ -60,7 +60,7 @@ describe('E2E tests', function () {
         /*
         await context.route(url => url.href.slice(0, host.length) != host, route => {
             if (DEBUG) {
-                console.log('aborting', route.request().url());
+                console.log('aborting', route.requests().url());
             }
             route.abort();
         });

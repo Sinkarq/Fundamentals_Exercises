@@ -13,7 +13,7 @@ const cats = [
     new Cat('204', 204, 'No content', 'cat204'),
     new Cat('301', 301, 'Moved permanently', 'cat301'),
     new Cat('304', 304, 'Not modified', 'cat304'),
-    new Cat('400', 400, 'Bad request', 'cat400'),
+    new Cat('400', 400, 'Bad requests', 'cat400'),
     new Cat('404', 404, 'Not Found', 'cat404'),
     new Cat('406', 406, 'Not Acceptable', 'cat406'),
     new Cat('410', 410, 'Gone', 'cat410'),
