@@ -1,76 +1,62 @@
-const { chromium } = require('playwright');
-const { expect } = require('chai');
+const {chromium} = require('playwright');
+const {expect} = require('chai');
 
-const path = 'http://localhost:3000/Advanced JS/Applications JS/05-Architecture %26 Testing/Exercise/01.Messenger';
-const DEBUG = true;
+const path = 'http://localhost:63342/Fundamentals_Exercises/Applications%20JS%20Exercises/05-Architecture%20&%20Testing/Exercise/01.Messenger/index.html?_ijt=pp93nvbf5ie3r274g05vfguos9&_ij_reload=RELOAD_ON_SAVE';
 
-let browser;
-let page;
+describe('Tests', async function () {
+    let browser;
+    let page;
 
-describe('E2E tests', function () {
-    if (DEBUG) {
-        this.timeout(120000);
-    } else {
-        this.timeout(6000);
-    }
+    this.timeout(12000000);
 
     before(async () => {
-        browser = await chromium.launch(DEBUG ? { headless: false, slowMo: 1000 } : '');
+        browser = await chromium.launch({headless: false, slowMo: 500});
     });
+
     after(async () => {
-        await browser.close();
+        browser = await browser.close();
     });
+
     beforeEach(async () => {
         page = await browser.newPage();
     });
+
     afterEach(async () => {
-        await page.close();
+        page = await page.close();
     });
 
-    it('initial load', async () => {
-        await page.goto(path);
-
-        const content = await page.textContent('#main');
-
-        expect(content).to.contains('Name: ');
-        expect(content).to.contains('Message: ');
-    });
-
-    it('"Refresh" button', async () => {
+    it("Load messages", async function () {
         await page.goto(path);
 
         const [request] = await Promise.all([
-            page.waitForRequest(res => res.method() == 'GET'),
-            page.click('text=Refresh')
+            page.waitForRequest((request) => request.method() == "GET"),
+            await page.click('#refresh')
         ]);
 
-        const res = await request.response();
-        const data = await res.json();
-        const arrData = Object.values(data);
+        const response = await request.response();
+        const body = await response.json();
+        const messages = Object.values(body).map(v => `${v.author}: ${v.content}`).join('\n');
 
-        expect(arrData[0].author).to.be.equal('Spami');
-        expect(arrData[0].content).to.be.equal('Hello, are you there?');
-        expect(arrData[1].author).to.be.equal('Garry');
-        expect(arrData[1].content).to.be.equal('Yep, whats up :?');
+
+        await page.click('#refresh');
+        const handle = await page.$eval('#messages', text => text.value);
+        expect(handle).to.equal(messages);
     });
 
-    it('"Submit" button', async () => {
+    it('send message', async function () {
         await page.goto(path);
 
-        await page.click('text=Refresh');
-
-        await page.fill('#author', 'Author-Test');
-        await page.fill('#content', 'Content-Test');
+        await page.fill('#author', "Author");
+        await page.fill('#content', "Content");
 
         const [request] = await Promise.all([
-            page.waitForRequest(res => res.method() == 'POST'),
-            page.click('text=Send')
+            page.waitForRequest((request) => request.method() == "POST"),
+            await page.click('#submit')
         ]);
 
-        await page.click('text=Refresh');
+        const body = await request.postData();
+        const expected = {"author": "Author", "content": "Content"};
 
-        const data = JSON.parse(request.postData());
-        expect(data.author).to.be.equal('Author-Test');
-        expect(data.content).to.be.equal('Content-Test');
+        expect(body).to.equal(JSON.stringify(expected));
     });
 });
