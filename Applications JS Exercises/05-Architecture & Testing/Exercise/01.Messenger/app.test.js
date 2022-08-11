@@ -1,7 +1,7 @@
 const {chromium} = require('playwright');
 const {expect} = require('chai');
 
-const path = 'http://localhost:63342/Fundamentals_Exercises/Applications%20JS%20Exercises/05-Architecture%20&%20Testing/Exercise/01.Messenger/index.html?_ijt=pp93nvbf5ie3r274g05vfguos9&_ij_reload=RELOAD_ON_SAVE';
+const path = 'http://localhost:63342/Fundamentals_Exercises/Applications%20JS%20Exercises/05-Architecture%20&%20Testing/Exercise/01.Messenger/index.html?_ijt=i9ahp94a36uiqvb67joekrutab';
 
 describe('Tests', async function () {
     let browser;
