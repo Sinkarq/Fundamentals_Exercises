@@ -2,8 +2,8 @@
 const { chromium } = require('playwright');
 const { expect } = require('chai');
 
-const host = 'http://localhost:3000/Advanced JS/Applications JS/05-Architecture %26 Testing/Exercise/03.SoftTerest/?/Advanced JS/Applications JS/05-Architecture ^& Testing/Exercise/03.SoftTerest'; // Application host (NOT service host - that can be anything)
-const DEBUG = false;
+const host = 'http://localhost:63342/Fundamentals_Exercises/Applications%20JS%20Exercises/05-Architecture%20&%20Testing/Exercise/03.SoftTerest/index.html?_ijt=hmn5ur505fe0ocs4cdp5ajqd49'; // Application host (NOT service host - that can be anything)
+const DEBUG = true;
 
 const mockData = require('./mock-data.json');
 const endpoints = {
@@ -36,15 +36,11 @@ describe('E2E tests', function () {
     if (DEBUG) {
         this.timeout(120000);
     } else {
-        this.timeout(6000);
+        this.timeout(12000);
     }
 
     before(async () => {
-        if (DEBUG) {
-            browser = await chromium.launch({ headless: false, slowMo: 500 });
-        } else {
-            browser = await chromium.launch();
-        }
+        browser = await chromium.launch({ headless: false, slowMo: 500 });
     });
 
     after(async () => {
@@ -121,7 +117,7 @@ describe('E2E tests', function () {
             const email = 'john@abv.bg';
             const password = '123456';
 
-            page.route(endpoint, route => route.fulfill(json({ _id: '0001', email, accessToken: 'AAAA' })));
+            await page.route(endpoint, route => route.fulfill(json({_id: '0001', email, accessToken: 'AAAA'})));
 
             await page.goto(host);
             await page.click('text=Register');
@@ -147,19 +143,19 @@ describe('E2E tests', function () {
             const email = 'john@abv.bg';
             const password = '123456';
 
-            page.route(endpoint, route => route.fulfill(json({ _id: '0001', email, accessToken: 'AAAA' })));
+            await page.route(endpoint, route => route.fulfill(json({_id: '0001', email, accessToken: 'AAAA'})));
 
             await page.goto(host);
             await page.click('text=Login');
 
             await page.waitForSelector('form');
 
-            await page.fill('[name="email"]', email);
-            await page.fill('[name="password"]', password);
+            await page.fill('#loginPage [name="email"]', email);
+            await page.fill('#loginPage [name="password"]', password);
 
             const [response] = await Promise.all([
                 page.waitForResponse(endpoint),
-                page.click('[type="submit"]')
+                page.click('#loginPage [type="submit"]')
             ]);
 
             const postData = JSON.parse(response.request().postData());
@@ -178,19 +174,19 @@ describe('E2E tests', function () {
         beforeEach(async () => {
             const endpoint = '**' + endpoints.login;
 
-            page.route(endpoint, route => route.fulfill(json({ _id: '0001', email, accessToken: 'AAAA' })));
+            await page.route(endpoint, route => route.fulfill(json({_id: '0001', email, accessToken: 'AAAA'})));
 
             await page.goto(host);
             await page.click('text=Login');
 
             await page.waitForSelector('form');
 
-            await page.fill('[name="email"]', email);
-            await page.fill('[name="password"]', password);
+            await page.fill('#loginPage [name="email"]', email);
+            await page.fill('#loginPage [name="password"]', password);
 
             await Promise.all([
                 page.waitForResponse(endpoint),
-                page.click('[type="submit"]')
+                page.click('#loginPage [type="submit"]')
             ]);
         });
 
@@ -198,15 +194,15 @@ describe('E2E tests', function () {
             const endpoint = '**' + endpoints.create;
             const mock = mockData.details;
 
-            page.route(endpoint, route => route.fulfill(json(mock)));
+            await page.route(endpoint, route => route.fulfill(json(mock)));
 
             await page.click('text=Create');
 
             await page.waitForSelector('form');
 
-            await page.fill('[name="title"]', mock.title);
-            await page.fill('[name="description"]', mock.description);
-            await page.fill('[name="imageURL"]', mock.img);
+            await page.fill('#createPage [name="title"]', mock.title);
+            await page.fill('#createPage [name="description"]', mock.description);
+            await page.fill('#createPage [name="imageURL"]', mock.img);
 
             const [response] = await Promise.all([
                 page.waitForResponse(endpoint),
