@@ -1,29 +1,19 @@
-import { render } from './lib/lib.js';
-import { towns as townsData } from './data/towns.js';
-import { template } from './templates/template.js';
+import {render} from "../../../../../node_modules/lit-html/lit-html.js";
+import {townListTemplate} from "../../01.List-Towns/templates/townListTemplate.js";
+import {towns} from "./data/towns.js";
 
-const container = document.getElementById('towns');
-const input = document.getElementById('searchText');
-const output = document.getElementById('result');
-document.getElementById('button').addEventListener('click', onSearch);
+render(townListTemplate(towns), document.querySelector('#towns'));
 
-const towns = townsData.map(town => ({ name: town, match: false }));
+document.querySelector('button').addEventListener('click', () => {
+    const inputEl = document.querySelector('input');
 
-function onSearch() {
-   const searching = input.value.trim().toLocaleLowerCase();
-
-   towns.forEach(town => {
-      town.match = searching && town.name.toLocaleLowerCase().includes(searching);
-   });
-
-   output.textContent = `${towns.filter(town => town.match).length} matches found`;
-
-   update();
-}
-
-function update() {
-   const value = template(towns);
-   render(value, container);
-}
-
-update();
+    document.querySelectorAll('li').forEach(town => {
+        if (town.textContent == inputEl.value) {
+            town.style.textDecoration = 'underline';
+            town.style.fontWeight = 'bold';
+        } else {
+            town.style.textDecoration = '';
+            town.style.fontWeight = '';
+        }
+    });
+});

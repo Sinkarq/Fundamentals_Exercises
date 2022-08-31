@@ -1,16 +1,10 @@
-import { render } from './lib/lib.js';
-import { townsTemplate } from './templates/template.js';
+import {render} from "../../../../../node_modules/lit-html/lit-html.js";
+import {getInput} from "../lib/misc.js";
+import {townListTemplate} from "../templates/townListTemplate.js";
 
-const container = document.getElementById('root');
-
-document.querySelector('form').addEventListener('submit', (e) => {
+document.querySelector('button').addEventListener('click', (e) => {
     e.preventDefault();
-
-    const data = document.getElementById('towns')
-        .value
-        .split(',')
-        .map(t => t.trim());
-
-    const value = townsTemplate(data);
-    render(value, container);
+    const input = getInput(document.querySelector('form'), 'towns');
+    const towns = input.split(', ');
+    render(townListTemplate(towns), document.querySelector('#root'));
 });

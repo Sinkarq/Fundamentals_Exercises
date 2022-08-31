@@ -1,19 +1,6 @@
-import { render } from './lib/lib.js';
-import { catsTemplate } from './templates/template.js';
-import { cats as catsData } from './data/catSeeder.js';
+import {cats} from "./data/catSeeder.js";
+import {render} from "../../../../../node_modules/lit-html/lit-html.js";
+import {catsListTemplate} from "./templates/catsListTemplate.js";
 
-catsData.forEach(c => c.info = false);
 
-const container = document.getElementById('allCats');
-
-function update() {
-    const value = catsTemplate(catsData, toggleInfo);
-    render(value, container);
-}
-
-function toggleInfo(cat) {
-    cat.info = !cat.info;
-    update();
-}
-
-update();
+render(catsListTemplate(cats), document.querySelector('#allCats'));
