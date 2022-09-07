@@ -1,18 +1,18 @@
-import { render } from './lib/lib.js';
-import { showCatalog } from './views/catalog.js';
-import { showCreate } from './views/create.js';
-import { showUpdate } from './views/update.js';
+import {render} from "../../../../../node_modules/lit-html/lit-html.js";
+import {buttonTemplate} from "./Templates/buttonTemplate.js";
+import {tableContainerTemplate} from "./Templates/tableContainerTemplate.js";
+import {createTemplate} from "./Templates/createTemplate.js";
+import {Endpoints} from "./API/Endpoints.js";
+import {booksTemplate} from "./Templates/Books/booksTemplate.js";
 
-const root = document.body;
+render(buttonTemplate(), document.body);
 
-const ctx = { update };
-
-function update() {
-   render([
-      showCatalog(ctx),
-      showCreate(ctx),
-      showUpdate(ctx)
-   ], root);
-}
-
-update();
+export const update = async () => {
+    const books = await Endpoints.getBooks();
+    render([
+            buttonTemplate(),
+            tableContainerTemplate(),
+            createTemplate()]
+        , document.body);
+    render(booksTemplate(books), document.querySelector('table'));
+};
