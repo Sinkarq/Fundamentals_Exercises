@@ -13,6 +13,8 @@ const createOptions = (method, body, _accessToken = null) => {
     if (_accessToken) {
         options.headers['X-Authorization'] = _accessToken;
     }
+
+    return options;
 };
 
 export const identityEndpoints = {
