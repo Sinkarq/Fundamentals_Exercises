@@ -1,14 +1,14 @@
 import {refreshNavbarState} from "../app.js";
-import {html} from "../../node_modules/lit-html/lit-html.js";
-import {getUserId} from "../misc.js";
+import {html, render} from "../../node_modules/lit-html/lit-html.js";
+import {containerElement, getUserId} from "../misc.js";
 import {Endpoints} from "../API/Endpoints.js";
 
-export const myPage = async (ctx) => {
+export const myPage = async () => {
     refreshNavbarState();
 
     const furnitures = await Endpoints.getUserFurniture(getUserId());
 
-    ctx.render(myPageView(furnitures));
+    render(myPageView(furnitures), containerElement);
 };
 
 export const myPageView = (furnitures) => html`

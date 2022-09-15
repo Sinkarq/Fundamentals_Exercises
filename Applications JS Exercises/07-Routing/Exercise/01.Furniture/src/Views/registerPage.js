@@ -1,9 +1,9 @@
-import {html} from "../../node_modules/lit-html/lit-html.js";
-import {throwException} from "../misc.js";
+import {html, render} from "../../node_modules/lit-html/lit-html.js";
+import {containerElement, throwException} from "../misc.js";
 import {identityEndpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
-export const registerPage = (ctx) => ctx.render(registerPageView());
+export const registerPage = () => render(registerPageView(), containerElement);
 
 const registerPageView = () => html`
     <div class="row space-top">

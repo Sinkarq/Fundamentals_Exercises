@@ -1,9 +1,9 @@
-import {html} from "../../node_modules/lit-html/lit-html.js";
-import {setAccessToken} from "../misc.js";
+import {html, render} from "../../node_modules/lit-html/lit-html.js";
+import {containerElement, setAccessToken} from "../misc.js";
 import {identityEndpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
-export const loginPage = (ctx) => ctx.render(loginPageView());
+export const loginPage = () => render(loginPageView(), containerElement);
 
 const loginPageView = () => html`
     <div class="row space-top">

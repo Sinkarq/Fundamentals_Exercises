@@ -1,9 +1,9 @@
-import {html} from "../../node_modules/lit-html/lit-html.js";
-import {throwException, validator} from "../misc.js";
+import {html, render} from "../../node_modules/lit-html/lit-html.js";
+import {containerElement, throwException, validator} from "../misc.js";
 import {Endpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
-export const createPage = (ctx) => ctx.render(createPageView());
+export const createPage = () => render(createPageView(), containerElement);
 
 const createPageView = () => html`
     <div class="row space-top">
