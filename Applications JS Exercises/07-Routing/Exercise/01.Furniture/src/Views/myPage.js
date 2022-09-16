@@ -19,11 +19,11 @@ export const myPageView = (furnitures) => html`
         </div>
     </div>
     <div class="row space-top">
-        ${furnitures.map(x => furnitureTemplate(x.img, x.description, x.price))}
+        ${furnitures.map(x => furnitureTemplate(x._id, x.img, x.description, x.price))}
     </div>
 `;
 
-export const furnitureTemplate = (img, description, price) => html`
+export const furnitureTemplate = (id, img, description, price) => html`
     <div class="col-md-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
@@ -33,7 +33,7 @@ export const furnitureTemplate = (img, description, price) => html`
                     <p>Price: <span>${price} $</span></p>
                 </footer>
                 <div>
-                    <a href="#" class="btn btn-info">Details</a>
+                    <a href="/details/${id}" class="btn btn-info">Details</a>
                 </div>
             </div>
         </div>

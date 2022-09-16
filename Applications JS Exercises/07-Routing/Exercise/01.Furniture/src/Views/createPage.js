@@ -1,6 +1,6 @@
 import {html, render} from "../../node_modules/lit-html/lit-html.js";
 import {containerElement, throwException, validator} from "../misc.js";
-import {Endpoints, identityEndpoints} from "../API/Endpoints.js";
+import {Endpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
 export const createPage = () => render(createPageView(), containerElement);
@@ -17,7 +17,7 @@ const createPageView = () => html`
             <div class="col-md-4">
                 <div class="form-group">
                     <label class="form-control-label" for="new-make">Make</label>
-                    <input @input="${(e) => validator.must_be_4_long(e.currentTarget)}" class="form-control valid"
+                    <input @input="${(e) => validator.must_be_4_long(e.currentTarget)}" class="form-control"
                            id="new-make" type="text"
                            name="make">
                 </div>

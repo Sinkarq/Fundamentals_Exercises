@@ -5,6 +5,8 @@ import {registerPage} from "./Views/registerPage.js";
 import {homePage} from "./Views/homePage.js";
 import {createPage} from "./Views/createPage.js";
 import {myPage} from "./Views/myPage.js";
+import {detailsPage} from "./Views/detailsPage.js";
+import {editPage} from "./Views/editPage.js";
 
 const guestNav = document.querySelector('#guest');
 const userNav = document.querySelector('#user');
@@ -33,6 +35,8 @@ page('/', await homePage);
 page('/home', await homePage);
 page('/create', createPage);
 page('/my-furniture', await myPage);
+page('/details/:id', await detailsPage);
+page('/edit/:id', await editPage);
 
 
 page.start();
