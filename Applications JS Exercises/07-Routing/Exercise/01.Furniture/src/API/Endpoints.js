@@ -1,28 +1,24 @@
 import {request} from "./request.js";
 import {accessToken} from "../misc.js";
 
-const createOptions = (method, body, _accessToken = null) => {
-    const options = {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body)
-    };
-
-    if (_accessToken) {
-        options.headers['X-Authorization'] = _accessToken;
-    }
-
-    return options;
-};
-
 export const identityEndpoints = {
     register: async (email, password) =>
-        await request('/users/register', createOptions('POST', {email, password})),
+        await request('/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({email, password})
+        }),
 
     login: async (email, password) =>
-        await request('/users/login', createOptions('POST', {email, password})),
+        await request('/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({email, password})
+        }),
 
 
     logout: async () => {
@@ -38,29 +34,28 @@ export const identityEndpoints = {
 export const Endpoints = {
     getFurnitures: async () => await request('/data/catalog'),
 
-    createFurniture: async (make, model, year, description, price, img, material) =>
-        await request('/data/catalog', createOptions('POST'), {
-            make,
-            model,
-            year,
-            description,
-            price,
-            img,
-            material
-        }, accessToken()),
+    createFurniture: async (make, model, year, description, price, img, material) => {
+        return await request('/data/catalog', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Authorization': accessToken()
+            },
+            body: JSON.stringify({make, model, year, description, price, img, material})
+        });
+    },
 
     furnitureDetails: async (id) => await request(`/data/catalog/${id}`),
 
     updateFurniture: async (id, make, model, year, description, price, img, material) =>
-        await request(`/data/catalog/${id}`, createOptions('PUT', {
-            make,
-            model,
-            year,
-            description,
-            price,
-            img,
-            material
-        }, accessToken())),
+        await request(`/data/catalog/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Authorization': accessToken()
+            },
+            body: JSON.stringify({make, model, year, description, price, img, material})
+        }),
 
     deleteFurniture: async (id) => await request(`/data/catalog/${id}`, {
         method: "DELETE",
@@ -69,5 +64,5 @@ export const Endpoints = {
         }
     }),
 
-    getUserFurniture: async (ownerId) => await request(`http://localhost:3030/data/catalog?where=_ownerId%3D%22${ownerId}%22`)
+    getUserFurniture: async (ownerId) => await request(`/data/catalog?where=_ownerId%3D%22${ownerId}%22`)
 };

@@ -38,7 +38,7 @@ const onSubmit = async (e) => {
     const result = await identityEndpoints.login(email, password);
     const accessToken = result.accessToken;
 
-    setAccessToken(accessToken);
+    setAccessToken(accessToken, result._id);
 
     page.redirect('/');
 };
