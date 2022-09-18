@@ -1,5 +1,5 @@
-import {html, render, nothing} from "../../node_modules/lit-html/lit-html.js";
-import {containerElement, getUserId} from "../misc.js";
+import {html, nothing} from "../../node_modules/lit-html/lit-html.js";
+import {getUserId} from "../misc.js";
 import {Endpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
@@ -8,7 +8,7 @@ export const detailsPage = async (ctx) => {
     const id = ctx.params.id;
     const furniture = await Endpoints.furnitureDetails(id);
 
-    render(detailsPageView(furniture), containerElement);
+    ctx.render(detailsPageView(furniture));
 };
 
 const detailsPageView = (furniture) => html`

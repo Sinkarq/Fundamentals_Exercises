@@ -1,5 +1,5 @@
-import {html, render} from "../../node_modules/lit-html/lit-html.js";
-import {containerElement, validator} from "../misc.js";
+import {html} from "../../node_modules/lit-html/lit-html.js";
+import {validator} from "../misc.js";
 import {Endpoints} from "../API/Endpoints.js";
 import page from "//unpkg.com/page/page.mjs";
 
@@ -7,7 +7,7 @@ export const editPage = async (ctx) => {
     const id = ctx.params.id;
     const furniture = await Endpoints.furnitureDetails(id);
 
-    render(editPageView(furniture), containerElement);
+    ctx.render(editPageView(furniture));
 };
 
 const editPageView = (furniture) => html`

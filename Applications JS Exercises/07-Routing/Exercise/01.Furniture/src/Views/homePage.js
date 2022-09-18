@@ -1,14 +1,13 @@
 import {refreshNavbarState} from "../app.js";
-import {html, render} from "../../node_modules/lit-html/lit-html.js";
-import {containerElement} from "../misc.js";
+import {html} from "../../node_modules/lit-html/lit-html.js";
 import {Endpoints} from "../API/Endpoints.js";
 
-export const homePage = async () => {
+export const homePage = async (ctx) => {
     refreshNavbarState();
 
     const furnitures = await Endpoints.getFurnitures();
     
-    render(homePageView(furnitures), containerElement);
+    ctx.render(homePageView(furnitures));
 };
 
 export const homePageView = (furnitures) => html`

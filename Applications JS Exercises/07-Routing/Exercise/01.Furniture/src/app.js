@@ -7,6 +7,7 @@ import {createPage} from "./Views/createPage.js";
 import {myPage} from "./Views/myPage.js";
 import {detailsPage} from "./Views/detailsPage.js";
 import {editPage} from "./Views/editPage.js";
+import {routingMiddleware} from "./routingMiddleware.js";
 
 const guestNav = document.querySelector('#guest');
 const userNav = document.querySelector('#user');
@@ -29,6 +30,7 @@ document.querySelector('#logoutBtn').addEventListener('click', (e) => {
 
 refreshNavbarState();
 
+page(routingMiddleware);
 page('/users/login', loginPage);
 page('/users/register', registerPage);
 page('/', await homePage);
