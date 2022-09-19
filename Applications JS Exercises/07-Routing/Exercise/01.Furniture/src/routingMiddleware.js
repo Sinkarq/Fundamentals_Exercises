@@ -6,6 +6,4 @@ const _render = (template) => render(template, root);
 export const routingMiddleware = (ctx, next) => {
     ctx.render = _render;
     next();
-
-    //
 };
