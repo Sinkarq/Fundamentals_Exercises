@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TodoApp.Data;
 
-public sealed class ApplicationDbContext : IdentityDbContext<User>
+public class ApplicationDbContext : IdentityDbContext<User>
 {
     private static readonly MethodInfo? SetIsDeletedQueryFilterMethod =
         typeof(ApplicationDbContext).GetMethod(
@@ -17,7 +17,7 @@ public sealed class ApplicationDbContext : IdentityDbContext<User>
     }
 
     //DbSets
-
+    public DbSet<Todo> Todos { get; set; }
 
     public override int SaveChanges() => this.SaveChanges(true);
 

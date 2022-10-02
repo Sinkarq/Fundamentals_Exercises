@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TodoApp.Server.Features.Todos.Models;
 
 namespace TodoApp.Server.MappingUtilities;
 
@@ -43,8 +44,9 @@ public static class AutoMapperConfig
 
     private static IProfileExpression RegisterCatMapping(this IProfileExpression configuration)
     {
+        configuration.CreateMap<Todo, TodoViewModel>();
+        configuration.CreateMap<CreateTodoInputModel, Todo>();
 
-        
         return configuration;
     }
 } 
