@@ -1,3 +1,4 @@
+using AspNetCore.Hashids.Mvc;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Server.Features.Todos.Models;
@@ -20,12 +21,19 @@ public class TodosController : ApiController
     public async Task<IActionResult> GetAllTodos() => this.Ok(await this.todosService.GetAllAsync<TodoViewModel>());
 
     [HttpGet]
-    [Route("/Todos/{id:int}")]
-    public async Task<IActionResult> GetTodoById(int id) => this.Ok(await this.todosService.GetByIdAsync<TodoViewModel>(id));
+    [Route("/Todos/{id:hashids}")]
+    public async Task<IActionResult> GetTodoById(
+        [FromRoute]
+        [ModelBinder(typeof(HashidsModelBinder))]
+        int id) 
+        => this.Ok(await this.todosService.GetByIdAsync<TodoViewModel>(id));
 
     [HttpDelete]
-    [Route("/Todos/{id:int}")]
-    public async Task<IActionResult> DeleteTodo(int id)
+    [Route("/Todos/{id:hashids}")]
+    public async Task<IActionResult> DeleteTodo(
+        [FromRoute]
+        [ModelBinder(typeof(HashidsModelBinder))] 
+        int id)
     {
         var model = await this.todosService.GetByIdModelAsync(id);
 
@@ -50,8 +58,11 @@ public class TodosController : ApiController
     }
 
     [HttpPut]
-    [Route("/Todos/ChangeState/{id:int}")]
-    public async Task<IActionResult> ChangeTodoState(int id)
+    [Route("/Todos/ChangeState/{id:hashids}")]
+    public async Task<IActionResult> ChangeTodoState(
+        [FromRoute]
+        [ModelBinder(typeof(HashidsModelBinder))]
+        int id)
     {
         var model = await this.todosService.GetByIdModelAsync(id);
 

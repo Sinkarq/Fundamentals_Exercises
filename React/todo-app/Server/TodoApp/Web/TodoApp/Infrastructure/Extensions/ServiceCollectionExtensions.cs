@@ -8,6 +8,7 @@ using TodoApp.Data;
 using TodoApp.Data.Common.Repositories;
 using TodoApp.Data.Repositories;
 using TodoApp.Server.Features.Identity;
+using TodoApp.Server.Infrastructure.Filters;
 
 namespace TodoApp.Server.Infrastructure.Extensions;
 
@@ -65,6 +66,7 @@ internal static class ServiceCollectionExtensions
                 setup.Salt = "Your Salt";
                 setup.MinHashLength = 10;
             })
+            .AddSwaggerGen(c => c.OperationFilter<HashidsOperationFilter>())
             .AddScoped(typeof(IDeletableEntityRepository<>), typeof(EfDeletableEntityRepository<>))
             .AddScoped(typeof(IRepository<>), typeof(EfRepository<>))
             .AddSingleton(AutoMapperConfig.MapperInstance);
