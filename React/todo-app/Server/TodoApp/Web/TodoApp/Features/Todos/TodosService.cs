@@ -29,4 +29,11 @@ public class TodosService : ITodosService
 
         await this.todosRepository.SaveChangesAsync();
     }
+
+    public async Task UpdateAsync(Todo model)
+    {
+        this.todosRepository.Update(model);
+
+        await this.todosRepository.SaveChangesAsync();
+    }
 }

@@ -48,4 +48,20 @@ public class TodosController : ApiController
 
         return this.Ok(this.mapper.Map<TodoViewModel>(result));
     }
+
+    [HttpPut]
+    [Route("/Todos/ChangeState/{id:int}")]
+    public async Task<IActionResult> ChangeTodoState(int id)
+    {
+        var model = await this.todosService.GetByIdModelAsync(id);
+
+        if (model == null)
+        {
+            return this.NotFound();
+        }
+
+        model.IsFinished = !model.IsFinished;
+        await this.todosService.UpdateAsync(model);
+        return this.Ok();
+    }
 }

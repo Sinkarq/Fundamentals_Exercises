@@ -1,2 +1,3 @@
-.li-item {
+.finishedTodo {
+    text-decoration: line-through;
 }

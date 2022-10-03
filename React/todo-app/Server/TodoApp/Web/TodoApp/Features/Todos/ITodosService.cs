@@ -13,4 +13,6 @@ public interface ITodosService : IService
     Task<Todo> CreateAsync(Todo model);
 
     Task DeleteAsync(Todo model);
+
+    Task UpdateAsync(Todo model);
 }
