@@ -5,7 +5,6 @@ export default function TodoItem({
     onDelete,
     onClickHandler
 }) {
-    console.log(todo);
     return (
         <li className={todo.isFinished ? styles.finishedTodo : ''}>
             {todo.text}

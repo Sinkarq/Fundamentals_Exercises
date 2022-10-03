@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using AspNetCore.Hashids.Json;
+
 namespace TodoApp.Server.Features.Todos.Models;
 
 public class TodoViewModel

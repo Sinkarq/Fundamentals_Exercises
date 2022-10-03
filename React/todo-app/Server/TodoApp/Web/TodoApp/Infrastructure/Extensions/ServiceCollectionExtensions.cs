@@ -60,6 +60,11 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         => services
             .AddServicesImplementingBaseServiceInterfaces()
+            .AddHashids(setup =>
+            {
+                setup.Salt = "Your Salt";
+                setup.MinHashLength = 10;
+            })
             .AddScoped(typeof(IDeletableEntityRepository<>), typeof(EfDeletableEntityRepository<>))
             .AddScoped(typeof(IRepository<>), typeof(EfRepository<>))
             .AddSingleton(AutoMapperConfig.MapperInstance);
