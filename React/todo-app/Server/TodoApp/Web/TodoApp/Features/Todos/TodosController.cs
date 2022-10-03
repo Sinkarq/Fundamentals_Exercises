@@ -53,8 +53,9 @@ public class TodosController : ApiController
     {
         var model = this.mapper.Map<Todo>(inputModel);
         var result = await this.todosService.CreateAsync(model);
+        var returnValue = this.mapper.Map<TodoViewModel>(result);
 
-        return this.Ok(this.mapper.Map<TodoViewModel>(result));
+        return new CreatedResult($"/Todos/{returnValue.Id}", returnValue);
     }
 
     [HttpPut]
