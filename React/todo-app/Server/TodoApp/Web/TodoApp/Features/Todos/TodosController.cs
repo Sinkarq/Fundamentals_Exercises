@@ -25,8 +25,8 @@ public class TodosController : ApiController
     public async Task<IActionResult> GetTodoById(
         [FromRoute]
         [ModelBinder(typeof(HashidsModelBinder))]
-        int id) 
-        => this.Ok(await this.todosService.GetByIdAsync<TodoViewModel>(id));
+        int id) =>
+        this.Ok(await this.todosService.GetByIdAsync<TodoViewModel>(id));
 
     [HttpDelete]
     [Route("/Todos/{id:hashids}")]

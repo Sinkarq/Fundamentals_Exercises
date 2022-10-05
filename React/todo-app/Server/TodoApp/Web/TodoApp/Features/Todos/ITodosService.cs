@@ -1,5 +1,3 @@
-using TodoApp.Server.Features.Todos.Models;
-
 namespace TodoApp.Server.Features.Todos;
 
 public interface ITodosService : IService

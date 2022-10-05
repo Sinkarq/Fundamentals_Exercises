@@ -15,6 +15,8 @@ public class EfRepository<TEntity> : IRepository<TEntity>
 
     protected ApplicationDbContext Context { get; set; }
 
+    public DbSet<TEntity> Collection() => this.DbSet; 
+
     public virtual IQueryable<TEntity> All() => this.DbSet;
 
     public virtual IQueryable<TEntity> AllAsNoTracking() => this.DbSet.AsNoTracking();

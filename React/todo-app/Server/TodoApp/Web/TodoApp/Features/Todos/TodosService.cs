@@ -1,4 +1,6 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TodoApp.Data;
 using TodoApp.Data.Common.Repositories;
 
 namespace TodoApp.Server.Features.Todos;
@@ -11,14 +13,18 @@ public class TodosService : ITodosService
 
     public async Task<IEnumerable<T>> GetAllAsync<T>() => this.todosRepository.All().To<T>();
 
-    public async Task<T> GetByIdAsync<T>(int id) => (await this.todosRepository.All().Where(x => x.Id == id).To<T>().FirstOrDefaultAsync())!;
-    
+    public async Task<T> GetByIdAsync<T>(int id)
+    {
+        var result = await this.todosRepository.Collection().FindAsync(id);
+        return AutoMapperConfig.MapperInstance.Map<T>(result);
+    }
+
     public async Task<Todo?> GetByIdModelAsync(int id) => (await this.todosRepository.All().Where(x => x.Id == id).FirstOrDefaultAsync())!;
 
     public async Task<Todo> CreateAsync(Todo model)
     {
         await this.todosRepository.AddAsync(model);
-        var nz = await this.todosRepository.SaveChangesAsync();
+        await this.todosRepository.SaveChangesAsync();
 
         return model;
     }
